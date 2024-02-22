@@ -1,11 +1,12 @@
 require('dotenv').config();
 const express =require('express');
 const router =express.Router();
-const {User} =require('../db/index')
+const { User } =require('../db/index')
 const {z, string} =require('zod');
 const jwt =require("jsonwebtoken");
 const secret_key =process.env.JWT_SECRET;
 const bcrypt =require('bcrypt');
+const { authMiddleware } = require('../middleware');
 
 const signupSchema  = z.object({
     username:z.string(),
@@ -19,10 +20,16 @@ const signinSchema  = z.object({
     password:z.string()
 })
 
+const updateSchema =z.object({
+    password:z.string().min(6).optional(),
+    firstname:z.string().optional(),
+    lastname:z.string().optional()
+})
+
 // signup route
 router.post('/signup',async(req,res)=>{   
-const success =signupSchema.safeParse(req.body)
-if(!success){
+const validate =signupSchema.safeParse(req.body)
+if(!validate.success){
    return res.status(411).json({msg:"Invalid Inputs"})
 }
     const alreadyuserexist = await User.findOne({username:req.body.username})
@@ -51,8 +58,8 @@ if(!success){
 
 // signin route
 router.post('/signin',async(req,res)=>{
-    const success =signinSchema.safeParse(req.body);
-    if(!success){
+    const validate =signinSchema.safeParse(req.body);
+    if(!validate.success){
         res.status(411).json({msg:"Invalid Inputs"})
     }
     const checkuserexist =await User.findOne({username:req.body.username});
@@ -68,9 +75,44 @@ router.post('/signin',async(req,res)=>{
         else{
              const userId=checkuserexist._id;
              const token =jwt.sign({userId},secret_key)
-            res.status(200).json({msg:"user signin succesfully",token:token})
+            res.status(200).json({msg:"user signin succesfully",token:"Bearer "+token})
         } 
     }
+})
+
+router.put('/',authMiddleware,async (req,res)=>{
+      const validate =updateSchema.safeParse(req.body);
+      if(!validate.success){
+        return res.status(411).json({msg:"invalid inputs"})
+      }
+      
+      try {
+        console.log(req.body);
+          await User.findOneAndUpdate({_id:req.userId},req.body)
+           res.status(201).json({msg:"updated successfully"});
+      } catch (error) {
+          res.status(411).json({msg:"Error while updating user"})
+      }
+})
+
+router.get('/bulk',async(req,res)=>{
+   const filter =req.query.filter;
+   
+   const users = await User.find({
+    $or: [{
+        firstname: { "$regex": filter }
+    }, {
+        lastname: { "$regex": filter }
+    }]
+})
+         res.status(200).json({
+            user:users.map(user =>({
+                username:user.username,
+                firstname:user.firstname,
+                lastname:user.lastname,
+                _id:user._id
+            }))
+         })
 })
 
 module.exports=router;
