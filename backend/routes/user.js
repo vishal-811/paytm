@@ -2,7 +2,7 @@ require('dotenv').config();
 const express =require('express');
 const router =express.Router();
 const {User} =require('../db/index')
-const {z} =require('zod');
+const {z, string} =require('zod');
 const jwt =require("jsonwebtoken");
 const secret_key =process.env.JWT_SECRET;
 const bcrypt =require('bcrypt');
@@ -14,6 +14,12 @@ const signupSchema  = z.object({
     lastname:z.string()
 })
 
+const signinSchema  = z.object({
+    username:z.string().email(),
+    password:z.string()
+})
+
+// signup route
 router.post('/signup',async(req,res)=>{   
 const success =signupSchema.safeParse(req.body)
 if(!success){
@@ -43,5 +49,28 @@ if(!success){
     }
 })
 
+// signin route
+router.post('/signin',async(req,res)=>{
+    const success =signinSchema.safeParse(req.body);
+    if(!success){
+        res.status(411).json({msg:"Invalid Inputs"})
+    }
+    const checkuserexist =await User.findOne({username:req.body.username});
+    if(!checkuserexist){
+        res.status(411).json({msg:"user doesn't exist with this credentials"})
+    }
+    else{
+        const password =req.body.password
+        const checkpassword =await bcrypt.compare(String(password),checkuserexist.password)
+        if(!checkpassword){
+             res.status(411).json({msg:"Wrong password"});
+        }
+        else{
+             const userId=checkuserexist._id;
+             const token =jwt.sign({userId},secret_key)
+            res.status(200).json({msg:"user signin succesfully",token:token})
+        } 
+    }
+})
 
 module.exports=router;
