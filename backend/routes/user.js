@@ -1,13 +1,12 @@
 require('dotenv').config();
 const express =require('express');
 const router =express.Router();
-const { User } =require('../db/index')
+const { User, Account } =require('../db/index')
 const {z, string} =require('zod');
 const jwt =require("jsonwebtoken");
 const secret_key =process.env.JWT_SECRET;
 const bcrypt =require('bcrypt');
 const { authMiddleware } = require('../middleware');
-
 const signupSchema  = z.object({
     username:z.string(),
     password:z.string().min(6),
@@ -47,8 +46,15 @@ if(!validate.success){
                 lastname:req.body.lastname
             })
                  const userId =user._id;
-                const token =jwt.sign({userId} ,secret_key);
-                res.status(201).json({msg:"User Created Successfully",token:token});
+        
+                // Given a random balance to user.
+                    await Account.create({
+                        userId,
+                        balance:1+Math.random() *10000
+                    })
+            
+                    const token =jwt.sign({userId} ,secret_key);
+                    res.status(201).json({msg:"User Created Successfully",token:token});
         } catch (error) {
 
             res.status(411).json({msg:"something went wrong"})
