@@ -14,14 +14,13 @@ function App() {
               setLoggedin(true);
       }
     },[loggedin])
-
+       console.log(loggedin);
   return (
     <>
-     {Hello}
+   
       <BrowserRouter>
-        <Routes>
-           
-           {loggedin ? <Route path="" element={<Dashboard/>}/> : <Route path="" element={<Signin/>}/> }
+        <Routes> 
+         { loggedin ? <Route path="" element={<Dashboard/>}/> :<Route path="" element={<Signin/>}/> }
            <Route path="/dashboard" element={<Dashboard/>}/>
            <Route path="/signin" element={<Signin/>}/>
            <Route path="/signup" element={<Signup/>}/>
