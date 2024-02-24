@@ -81,7 +81,7 @@ router.post('/signin',async(req,res)=>{
         else{
              const userId=checkuserexist._id;
              const token =jwt.sign({userId},secret_key)
-            res.status(200).json({msg:"user signin succesfully",token:"Bearer "+token})
+            res.status(200).json({msg:"user signin succesfully",token:token})
         } 
     }
 })
@@ -101,16 +101,21 @@ router.put('/',authMiddleware,async (req,res)=>{
       }
 })
 
-router.get('/bulk',async(req,res)=>{
+router.get('/bulk',authMiddleware ,async(req,res)=>{
    const filter =req.query.filter || "";
-   
-   const users = await User.find({
-    $or: [{
-        firstname: { "$regex": filter }
-    }, {
-        lastname: { "$regex": filter }
-    }]
-})
+     const id =req.userId
+     const users = await User.find({
+        $and: [
+            {
+                $or: [
+                    { firstname: { "$regex": filter } },
+                    { lastname: { "$regex": filter } }
+                ]
+            },
+            { _id: { $ne: id } }
+        ]
+    });
+        
          res.status(200).json({
             user:users.map(user =>({
                 username:user.username,

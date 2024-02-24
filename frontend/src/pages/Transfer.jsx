@@ -2,6 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import axios from "axios"
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Transfer =()=>{
     const navigate =useNavigate();
@@ -40,6 +41,7 @@ const Transfer =()=>{
                     />
                     </div>
                     <button onClick={async()=>{
+                        try{
                        const response =  await axios.post("http://localhost:3000/api/v1/account/transfer",{
                           to:id,
                           amount:amount
@@ -50,9 +52,16 @@ const Transfer =()=>{
                          }
                      })
                     //   if transfer succesful navigate to dashboard
-                     if(response.status===200){
+                     
+                        if(response.status===200){
                         navigate("/dashboard")
+                        toast.success("Transfer Successful")
                      }
+                     } catch(error){
+                        toast.error(error.response.data.msg);
+                     }
+                     
+                    
                     }} className="justify-center rounded-md text-sm font-medium ring-offset-background transition-colors h-10 px-4 py-2 w-full bg-green-500 text-white">
                         Initiate Transfer
                     </button>

@@ -1,6 +1,8 @@
-
-
+import { useNavigate } from "react-router-dom";
+import {toast} from "react-toastify"
+import Button from "./Button";
 const Appbar =()=>{
+    const navigate =useNavigate();
     return(
         <div className="shadow h-14 flex justify-between">
         <div className="flex flex-col justify-center h-full ml-4 font-medium text-4xl">
@@ -14,7 +16,15 @@ const Appbar =()=>{
                 <div className="flex flex-col justify-center h-full text-xl">
                     U
                 </div>
+                
             </div>
+              <div>
+                  <Button onClick={()=>{
+                      localStorage.clear("token");
+                      navigate('/signin')
+                      toast.success("logged out suceessfully")
+                  }} label={"logout"}></Button>
+              </div>
         </div>
     </div>
     )
