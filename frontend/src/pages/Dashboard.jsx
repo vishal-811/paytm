@@ -15,7 +15,7 @@ const Dashboard =()=>{
           }
           else{
               useEffect(()=>{
-                       axios.get("http://localhost:3000/api/v1/account/balance",{
+                       axios.get("https://paytm-1.onrender.com/api/v1/account/balance",{
                  headers:{
                      authorization :'Bearer '+ token
                  }

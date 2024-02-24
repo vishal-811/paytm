@@ -21,7 +21,7 @@ const Transfer =()=>{
                 <div className="p-6">
                 <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center">
-                    <span className="text-2xl text-white">{name[0]}</span>
+                    <span className="text-2xl text-white">{name[0].toUpperCase()}</span>
                     </div>
                     <h3 className="text-2xl font-semibold">{name}</h3>
                 </div>
@@ -42,7 +42,7 @@ const Transfer =()=>{
                     </div>
                     <button onClick={async()=>{
                         try{
-                       const response =  await axios.post("http://localhost:3000/api/v1/account/transfer",{
+                       const response =  await axios.post("https://paytm-1.onrender.com/api/v1/account/transfer",{
                           to:id,
                           amount:amount
                        },

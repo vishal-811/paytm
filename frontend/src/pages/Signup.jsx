@@ -24,7 +24,7 @@ const Signup =()=>{
                 <Inputbox onChange={(e)=>{setUsername(e.target.value)}} label={"Email"} placeholder={"Enter your Email"} type="text"/>
                 <Inputbox onChange={(e)=>{setPassword(e.target.value)}} label={"Password"} placeholder={"Enter your Password"} type="text"/>
                 <Button onClick={async()=>{
-                   const response= await  axios.post("http://localhost:3000/api/v1/user/signup",{
+                   const response= await  axios.post("https://paytm-1.onrender.com/api/v1/user/signup",{
                         username,
                         firstname,
                         lastname,
